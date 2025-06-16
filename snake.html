@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Skier Snake Game</title>
+  <style>
+    body {
+      background-color: #e0f7fa;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      color: #00796b;
+      padding-top: 20px;
+    }
+
+    canvas {
+      background-color: #ffffff;
+      display: block;
+      margin: 20px auto;
+      border: 4px solid #004d40;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    p {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎿 Skier Snake: Collect the Ski Lifts 🚡</h1>
+  <canvas id="game" width="400" height="400"></canvas>
+  <p>Use arrow keys to move your skier. Don’t crash!</p>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const grid = 20;
+    let count = 0;
+
+    let skier = {
+      x: 160,
+      y: 160,
+      dx: grid,
+      dy: 0,
+      cells: [],
+      maxCells: 4
+    };
+
+    let lift = {
+      x: 320,
+      y: 320
+    };
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    function gameLoop() {
+      requestAnimationFrame(gameLoop);
+
+      if (++count < 4) return;
+      count = 0;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      skier.x += skier.dx;
+      skier.y += skier.dy;
+
+      if (skier.x < 0) skier.x = canvas.width - grid;
+      else if (skier.x >= canvas.width) skier.x = 0;
+      if (skier.y < 0) skier.y = canvas.height - grid;
+      else if (skier.y >= canvas.height) skier.y = 0;
+
+      skier.cells.unshift({ x: skier.x, y: skier.y });
+
+      if (skier.cells.length > skier.maxCells) {
+        skier.cells.pop();
+      }
+
+      // draw lift
+      ctx.fillStyle = "#e53935";
+      ctx.font = "20px Arial";
+      ctx.fillText("🚡", lift.x + 2, lift.y + 18);
+
+      // draw skier
+      ctx.fillStyle = "#00796b";
+      skier.cells.forEach((cell, index) => {
+        ctx.fillRect(cell.x, cell.y, grid - 1, grid - 1);
+
+        // collision with lift
+        if (cell.x === lift.x && cell.y === lift.y) {
+          skier.maxCells++;
+          lift.x = getRandomInt(0, 20) * grid;
+          lift.y = getRandomInt(0, 20) * grid;
+        }
+
+        // collision with self
+        for (let i = index + 1; i < skier.cells.length; i++) {
+          if (cell.x === skier.cells[i].x && cell.y === skier.cells[i].y) {
+            skier.x = 160;
+            skier.y = 160;
+            skier.cells = [];
+            skier.maxCells = 4;
+            skier.dx = grid;
+            skier.dy = 0;
+            lift.x = getRandomInt(0, 20) * grid;
+            lift.y = getRandomInt(0, 20) * grid;
+          }
+        }
+      });
+    }
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft" && skier.dx === 0) {
+        skier.dx = -grid;
+        skier.dy = 0;
+      } else if (e.key === "ArrowUp" && skier.dy === 0) {
+        skier.dy = -grid;
+        skier.dx = 0;
+      } else if (e.key === "ArrowRight" && skier.dx === 0) {
+        skier.dx = grid;
+        skier.dy = 0;
+      } else if (e.key === "ArrowDown" && skier.dy === 0) {
+        skier.dy = grid;
+        skier.dx = 0;
+      }
+    });
+
+    requestAnimationFrame(gameLoop);
+  </script>
+
+</body>
+<footer>
+        <p><a href="index.html">← Back to my professional site</a></p>
+        <p><a href="scratch.html">← Back to my skiing site</a></p>
+    </footer>
+
+</html>
